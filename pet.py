@@ -2,21 +2,25 @@ import tkinter as tk
 import time
 
 
-class pet:
-    speedUpMultiplier = 5
+class Pet:
+    screen_width = 1920
+    screen_height = 1080
+    taskbar_height = 30
+    speed_up_multiplier = 5
     direction = -2
+    # Hardcoded cause I don't care anymore at 1AM tonight, yup.
     size = 170
 
-    def speedUp(self, e):
+    def speed_up(self, e):
         if e.x < 70:
-            self.direction = abs(self.direction) * self.speedUpMultiplier
+            self.direction = abs(self.direction) * self.speed_up_multiplier
             return
-        self.direction = abs(self.direction) * -self.speedUpMultiplier
+        self.direction = abs(self.direction) * -self.speed_up_multiplier
 
-    def slowDown(self, e):
-        self.direction //= self.speedUpMultiplier
+    def slow_down(self, e):
+        self.direction //= self.speed_up_multiplier
 
-    def generateGifs(self):
+    def generate_gifs(self):
         # code below generates string for each frame in gif
         # Don't do this kids, never do this.
         # But in life sometimes you do things you should not do.
@@ -36,7 +40,7 @@ class pet:
             for i in range(10)]
         self.img = self.moveleft[self.frame_index]  # starting direction gif
 
-    def setupWindow(self):
+    def setup_window(self):
         self.window = tk.Tk()
         self.window.config(background='black')
         self.window.wm_attributes('-transparentcolor', 'black')
@@ -45,24 +49,21 @@ class pet:
         self.window.geometry(f'{self.size}x{self.size}+{self.x}+{self.y}')
         self.window.after(0, self.update)
 
-    def createLabel(self):
+    def create_label(self):
         self.label = tk.Label(self.window, bd=0, bg='black')
         self.label.configure(image=self.img)
         self.label.pack()
-        self.label.bind("<Enter>", self.speedUp)
-        self.label.bind("<Leave>", self.slowDown)
+        self.label.bind("<Enter>", self.speed_up)
+        self.label.bind("<Leave>", self.slow_down)
 
     def __init__(self):
-        self.x = 1040
-        self.y = 940
-        self.setupWindow()
-        self.generateGifs()
+        self.x = 1040  # artitrary number
+        self.y = self.screen_height - self.size  # above taskbar on a 1080p monitor
+        self.setup_window()
+        self.generate_gifs()
+        self.create_label()
 
-        self.timestamp = time.time()
-        self.createLabel()
-        self.window.mainloop()
-
-    def changetime(self, direction):
+    def change_time(self, direction):
         if time.time() <= self.timestamp + 0.05:
             return
         self.timestamp = time.time()
@@ -75,13 +76,13 @@ class pet:
             direction = self.moveleft
         else:
             direction = self.moveright
-        self.changetime(direction)
+        self.change_time(direction)
 
     def update(self):
         self.go()
-        if self.x < 0:
+        if self.x < -self.size:
             self.direction = abs(self.direction)
-        elif self.x > 1800:
+        elif self.x > self.screen_width:
             self.direction = -abs(self.direction)
 
         self.window.geometry(f'{self.size}x{self.size}+{self.x}+{self.y}')
@@ -90,6 +91,11 @@ class pet:
         self.window.after(10, self.update)  # 10 is frames number for my gif
         self.window.lift()
 
+    def run(self):
+        self.timestamp = time.time()
+        self.window.mainloop()
+
 
 if __name__ == '__main__':
-    pet()
+    pet = Pet()
+    pet.run()
